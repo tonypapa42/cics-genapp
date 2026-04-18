@@ -29,7 +29,7 @@
     DROP     TABLE      <DB2DBID>.motor;
     DROP     TABLE      <DB2DBID>.commercial;
     DROP     TABLE      <DB2DBID>.claim;
-     DROP     TABLE      <DB2DBID>.pet;
+    DROP     TABLE      <DB2DBID>.pet;
     DROP     TABLESPACE <DB2DBID>.GENATS01;
     DROP     TABLESPACE <DB2DBID>.GENATS02;
     DROP     TABLESPACE <DB2DBID>.GENATS03;

@@ -56,7 +56,7 @@
            03 FILLER                   PIC X(9)  VALUE 'COMMAREA='.
            03 CA-DATA                  PIC X(90) VALUE SPACES.
       *----------------------------------------------------------------*
-       01 LGDPVS01                  PIC x(8) Value 'LGDPVS01'.
+       01 LGDPVS01                  PIC X(8) Value 'LGDPVS01'.
       *----------------------------------------------------------------*
       * Definitions required for data manipulation                     *
       *----------------------------------------------------------------*
