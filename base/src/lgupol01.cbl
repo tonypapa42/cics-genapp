@@ -39,6 +39,7 @@
            03 WS-FULL-ENDOW-LEN        PIC S9(4) COMP VALUE +124.
            03 WS-FULL-HOUSE-LEN        PIC S9(4) COMP VALUE +130.
            03 WS-FULL-MOTOR-LEN        PIC S9(4) COMP VALUE +137.
+           03 WS-FULL-PET-LEN          PIC S9(4) COMP VALUE +195.
 
       * Error Message structure
        01  ERROR-MSG.
@@ -136,6 +137,14 @@
                  EXEC CICS RETURN END-EXEC
                END-IF
 
+             WHEN '01UPET'
+               ADD WS-CA-HEADER-LEN  TO WS-REQUIRED-CA-LEN
+               ADD WS-FULL-PET-LEN   TO WS-REQUIRED-CA-LEN
+               IF EIBCALEN IS LESS THAN WS-REQUIRED-CA-LEN
+                 MOVE '98' TO CA-RETURN-CODE
+                 EXEC CICS RETURN END-EXEC
+               END-IF
+
              WHEN OTHER
                MOVE '99' TO CA-RETURN-CODE
            END-EVALUATE
@@ -154,10 +163,17 @@
       *================================================================*
        UPDATE-POLICY-DB2-INFO.
 
-           EXEC CICS LINK Program(LGUPDB01)
-                Commarea(DFHCOMMAREA)
-                LENGTH(32500)
-           END-EXEC.
+           IF CA-REQUEST-ID = '01UPET'
+             EXEC CICS LINK Program('LGUPPT01')
+                  Commarea(DFHCOMMAREA)
+                  LENGTH(32500)
+             END-EXEC
+           ELSE
+             EXEC CICS LINK Program('LGUPDB01')
+                  Commarea(DFHCOMMAREA)
+                  LENGTH(32500)
+             END-EXEC
+           END-IF.
 
            EXIT.
 

@@ -88,10 +88,17 @@
            SET WS-ADDR-DFHCOMMAREA TO ADDRESS OF DFHCOMMAREA.
       *
 
-           EXEC CICS LINK Program(LGIPDB01)
-               Commarea(DFHCOMMAREA)
-               Length(32500)
-           END-EXEC.
+           IF CA-REQUEST-ID = '01IPET'
+             EXEC CICS LINK Program('LGIPPT01')
+                 Commarea(DFHCOMMAREA)
+                 Length(32500)
+             END-EXEC
+           ELSE
+             EXEC CICS LINK Program(LGIPDB01)
+                 Commarea(DFHCOMMAREA)
+                 Length(32500)
+             END-EXEC
+           END-IF.
 
            EXEC CICS RETURN END-EXEC.
 

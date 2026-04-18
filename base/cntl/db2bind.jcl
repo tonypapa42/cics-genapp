@@ -123,6 +123,62 @@ BIND PACKAGE (GENASA1)                                    -
      REL(DEALLOCATE)                                      -
      VALIDATE(BIND)
 
+BIND PACKAGE (GENASA1)                                    -
+     ISO(CS)                                              -
+     CURRENTDATA(NO)                                      -
+     MEMBER(LGAPPT01)                                     -
+     DEGREE(1)                                            -
+     DYNAMICRULES(BIND)                                   -
+     ACTION (REPLACE)                                     -
+     EXPLAIN(NO)                                          -
+     OWNER(<SQLID>)                                       -
+     QUALIFIER(<DB2DBID>)                                 -
+     ENABLE(BATCH,CICS)                                   -
+     REL(DEALLOCATE)                                      -
+     VALIDATE(BIND)
+
+BIND PACKAGE (GENASA1)                                    -
+     ISO(CS)                                              -
+     CURRENTDATA(NO)                                      -
+     MEMBER(LGIPPT01)                                     -
+     DEGREE(1)                                            -
+     DYNAMICRULES(BIND)                                   -
+     ACTION (REPLACE)                                     -
+     EXPLAIN(NO)                                          -
+     OWNER(<SQLID>)                                       -
+     QUALIFIER(<DB2DBID>)                                 -
+     ENABLE(BATCH,CICS)                                   -
+     REL(DEALLOCATE)                                      -
+     VALIDATE(BIND)
+
+BIND PACKAGE (GENASA1)                                    -
+     ISO(CS)                                              -
+     CURRENTDATA(NO)                                      -
+     MEMBER(LGUPPT01)                                     -
+     DEGREE(1)                                            -
+     DYNAMICRULES(BIND)                                   -
+     ACTION (REPLACE)                                     -
+     EXPLAIN(NO)                                          -
+     OWNER(<SQLID>)                                       -
+     QUALIFIER(<DB2DBID>)                                 -
+     ENABLE(BATCH,CICS)                                   -
+     REL(DEALLOCATE)                                      -
+     VALIDATE(BIND)
+
+BIND PACKAGE (GENASA1)                                    -
+     ISO(CS)                                              -
+     CURRENTDATA(NO)                                      -
+     MEMBER(LGDPPT01)                                     -
+     DEGREE(1)                                            -
+     DYNAMICRULES(BIND)                                   -
+     ACTION (REPLACE)                                     -
+     EXPLAIN(NO)                                          -
+     OWNER(<SQLID>)                                       -
+     QUALIFIER(<DB2DBID>)                                 -
+     ENABLE(BATCH,CICS)                                   -
+     REL(DEALLOCATE)                                      -
+     VALIDATE(BIND)
+
 BIND PLAN (GENAONE)                                       -
      PKLIST(NULLID.*, *.GENASA1.*)                        -
      CURRENTDATA(NO)                                      -

@@ -1,16 +1,16 @@
+       PROCESS SQL
       ******************************************************************
       *                                                                *
-      * (C) Copyright IBM Corp. 2011, 2020                             *
+      * (C) Copyright IBM Corp. 2011, 2024                             *
       *                                                                *
-      *                    ADD Policy                                  *
+      *                    DELETE Pet Policy                           *
       *                                                                *
-      *  Add Policy business logic                                     *
-      *   To add full details of an individual policy:                 *
-      *     Endowment, House, Motor, Commercial                        *
+      *  Appropriate row will be deleted from DB2 Policy and the       *
+      *  Pet table (via foreign key cascade).                          *
       *                                                                *
       ******************************************************************
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. LGAPOL01.
+       PROGRAM-ID. LGDPPT01.
        ENVIRONMENT DIVISION.
        CONFIGURATION SECTION.
       *
@@ -24,7 +24,7 @@
       * Run time (debug) infomation for this invocation
         01  WS-HEADER.
            03 WS-EYECATCHER            PIC X(16)
-                                        VALUE 'LGAPOL01------WS'.
+                                        VALUE 'LGDPPT01------WS'.
            03 WS-TRANSID               PIC X(4).
            03 WS-TERMID                PIC X(4).
            03 WS-TASKNUM               PIC 9(7).
@@ -33,34 +33,62 @@
            03 WS-CALEN                 PIC S9(4) COMP.
 
       * Variables for time/date processing
-       01  ABS-TIME                    PIC S9(8) COMP VALUE +0.
-       01  TIME1                       PIC X(8)  VALUE SPACES.
-       01  DATE1                       PIC X(10) VALUE SPACES.
+       01  WS-ABSTIME                  PIC S9(8) COMP VALUE +0.
+       01  WS-TIME                     PIC X(8)  VALUE SPACES.
+       01  WS-DATE                     PIC X(10) VALUE SPACES.
 
       * Error Message structure
        01  ERROR-MSG.
            03 EM-DATE                  PIC X(8)  VALUE SPACES.
            03 FILLER                   PIC X     VALUE SPACES.
            03 EM-TIME                  PIC X(6)  VALUE SPACES.
-           03 FILLER                   PIC X(9)  VALUE ' LGAPOL01'.
-           03 EM-VARIABLE              PIC X(21) VALUE SPACES.
+           03 FILLER                   PIC X(9)  VALUE ' LGDPPT01'.
+           03 EM-VARIABLE.
+             05 FILLER                 PIC X(6)  VALUE ' CNUM='.
+             05 EM-CUSNUM              PIC X(10)  VALUE SPACES.
+             05 FILLER                 PIC X(6)  VALUE ' PNUM='.
+             05 EM-POLNUM              PIC X(10)  VALUE SPACES.
+             05 EM-SQLREQ              PIC X(16) VALUE SPACES.
+             05 FILLER                 PIC X(9)  VALUE ' SQLCODE='.
+             05 EM-SQLRC               PIC +9(5) USAGE DISPLAY.
 
        01  CA-ERROR-MSG.
            03 FILLER                   PIC X(9)  VALUE 'COMMAREA='.
            03 CA-DATA                  PIC X(90) VALUE SPACES.
-       01  LGAPDB01                    PIC X(8)  VALUE 'LGAPDB01'.
       *----------------------------------------------------------------*
-
+       01 LGDPVS01                  PIC x(8) Value 'LGDPVS01'.
       *----------------------------------------------------------------*
       * Definitions required for data manipulation                     *
       *----------------------------------------------------------------*
-      * Fields to be used to check that commarea is correct length
+      * Fields to be used to calculate minimum commarea length required
        01  WS-COMMAREA-LENGTHS.
-           03 WS-CA-HEADER-LEN         PIC S9(4) COMP VALUE +28.
-           03 WS-REQUIRED-CA-LEN       PIC S9(4)      VALUE +0.
+           03 WS-CA-HEADER-LEN          PIC S9(4) COMP VALUE +28.
 
       *----------------------------------------------------------------*
 
+      *----------------------------------------------------------------*
+      * Definitions required by SQL statement                          *
+      *   DB2 datatypes to COBOL equivalents                           *
+      *     SMALLINT    :   PIC S9(4) COMP                             *
+      *     INTEGER     :   PIC S9(9) COMP                             *
+      *     DATE        :   PIC X(10)                                  *
+      *     TIMESTAMP   :   PIC X(26)                                  *
+      *----------------------------------------------------------------*
+      * Host variables for input to DB2 integer types
+      * Any values specified in SQL stmts must be defined here so
+      * available to SQL pre-compiler
+       01 DB2-IN-INTEGERS.
+          03 DB2-CUSTOMERNUM-INT       PIC S9(9) COMP.
+          03 DB2-POLICYNUM-INT         PIC S9(9) COMP.
+      *----------------------------------------------------------------*
+
+      *----------------------------------------------------------------*
+      *    DB2 CONTROL
+      *----------------------------------------------------------------*
+      * SQLCA DB2 communications area
+           EXEC SQL
+               INCLUDE SQLCA
+           END-EXEC.
 
       ******************************************************************
       *    L I N K A G E     S E C T I O N
@@ -68,7 +96,9 @@
        LINKAGE SECTION.
 
        01  DFHCOMMAREA.
-             Copy LGCMAREA.
+           EXEC SQL
+             INCLUDE LGCMAREA
+           END-EXEC.
 
 
       ******************************************************************
@@ -88,8 +118,10 @@
            MOVE EIBTRNID TO WS-TRANSID.
            MOVE EIBTRMID TO WS-TERMID.
            MOVE EIBTASKN TO WS-TASKNUM.
-           MOVE EIBCALEN TO WS-CALEN.
       *----------------------------------------------------------------*
+
+      * initialize DB2 host variables
+           INITIALIZE DB2-IN-INTEGERS.
 
       *----------------------------------------------------------------*
       * Check commarea and obtain required details                     *
@@ -103,42 +135,60 @@
 
       * initialize commarea return code to zero
            MOVE '00' TO CA-RETURN-CODE
+           MOVE EIBCALEN TO WS-CALEN.
            SET WS-ADDR-DFHCOMMAREA TO ADDRESS OF DFHCOMMAREA.
 
-      * Check commarea length
-           ADD WS-CA-HEADER-LEN TO WS-REQUIRED-CA-LEN
-
-
-      *    if less set error return code and return to caller
-           IF EIBCALEN IS LESS THAN WS-REQUIRED-CA-LEN
+      * Check commarea is large enough
+           IF EIBCALEN IS LESS THAN WS-CA-HEADER-LEN
              MOVE '98' TO CA-RETURN-CODE
              EXEC CICS RETURN END-EXEC
            END-IF
 
-      *----------------------------------------------------------------*
-      *    Perform the data Inserts                                    *
-      *----------------------------------------------------------------*
-           EVALUATE CA-REQUEST-ID
+      * Convert commarea customer & policy nums to DB2 integer format
+           MOVE CA-CUSTOMER-NUM TO DB2-CUSTOMERNUM-INT
+           MOVE CA-POLICY-NUM   TO DB2-POLICYNUM-INT
+      * and save in error msg field incase required
+           MOVE CA-CUSTOMER-NUM TO EM-CUSNUM
+           MOVE CA-POLICY-NUM   TO EM-POLNUM
 
-             WHEN '01APET'
-               EXEC CICS Link Program('LGAPPT01')
-                    Commarea(DFHCOMMAREA)
-                    LENGTH(32500)
-               END-EXEC
+           PERFORM DELETE-POLICY-DB2-INFO
+           EXEC CICS LINK PROGRAM(LGDPVS01)
+                Commarea(DFHCOMMAREA)
+                LENGTH(32500)
+           END-EXEC.
 
-             WHEN OTHER
-               EXEC CICS Link Program(LGAPDB01)
-                    Commarea(DFHCOMMAREA)
-                    LENGTH(32500)
-               END-EXEC
-
-           END-EVALUATE.
-
+      * Return to caller
            EXEC CICS RETURN END-EXEC.
 
        MAINLINE-EXIT.
            EXIT.
       *----------------------------------------------------------------*
+
+      *================================================================*
+      * Delete appropriate row from policy table                       *
+      *  because of FOREIGN KEY definitions the delete should be       *
+      *  propagated to the pet table                                   *
+      *================================================================*
+       DELETE-POLICY-DB2-INFO.
+
+           MOVE ' DELETE POLICY  ' TO EM-SQLREQ
+           EXEC SQL
+             DELETE
+               FROM POLICY
+               WHERE ( CUSTOMERNUMBER = :DB2-CUSTOMERNUM-INT AND
+                       POLICYNUMBER  = :DB2-POLICYNUM-INT      )
+           END-EXEC
+
+      *    Treat SQLCODE 0 and SQLCODE 100 (record not found) as
+      *    successful - end result is record does not exist
+           IF SQLCODE NOT EQUAL 0 Then
+               MOVE '90' TO CA-RETURN-CODE
+               PERFORM WRITE-ERROR-MESSAGE
+               EXEC CICS RETURN END-EXEC
+           END-IF.
+
+           EXIT.
+
 
       *================================================================*
       * Procedure to write error message to Queues                     *
@@ -147,15 +197,16 @@
       *================================================================*
        WRITE-ERROR-MESSAGE.
       * Save SQLCODE in message
+           MOVE SQLCODE TO EM-SQLRC
       * Obtain and format current time and date
-           EXEC CICS ASKTIME ABSTIME(ABS-TIME)
+           EXEC CICS ASKTIME ABSTIME(WS-ABSTIME)
            END-EXEC
-           EXEC CICS FORMATTIME ABSTIME(ABS-TIME)
-                     MMDDYYYY(DATE1)
-                     TIME(TIME1)
+           EXEC CICS FORMATTIME ABSTIME(Ws-ABSTIME)
+                     MMDDYYYY(WS-DATE)
+                     TIME(WS-TIME)
            END-EXEC
-           MOVE DATE1 TO EM-DATE
-           MOVE TIME1 TO EM-TIME
+           MOVE WS-DATE TO EM-DATE
+           MOVE WS-TIME TO EM-TIME
       * Write output message to TDQ
            EXEC CICS LINK PROGRAM('LGSTSQ')
                      COMMAREA(ERROR-MSG)

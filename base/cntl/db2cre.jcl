@@ -80,6 +80,14 @@
     CLOSE NO
     CCSID EBCDIC
     BUFFERPOOL BP1;
+   CREATE   TABLESPACE GENATS08 IN <DB2DBID>
+     USING STOGROUP GENASG02
+       PRIQTY 10000
+       SECQTY 5000
+       ERASE  NO
+     CLOSE NO
+     CCSID EBCDIC
+     BUFFERPOOL BP1;
 /*
 //* >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 //*  CREATE TABLES AND INDEXES
@@ -372,6 +380,44 @@ CREATE UNIQUE INDEX <DB2DBID>.iClaim
 
 /*
 //*
+//* >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+//*  CREATE Pet TABLE
+//* <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+//*
+//CRTABS  EXEC PGM=IKJEFT01,DYNAMNBR=20,COND=(4,LT)
+//SYSTSPRT DD SYSOUT=*
+//SYSTSIN  DD *
+ DSN SYSTEM(<DB2SSID>)
+ RUN  PROGRAM(DSNTIAD) PLAN(<DB2PLAN>) -
+      LIB('<DB2RUN>.RUNLIB.LOAD')
+/*
+//SYSPRINT DD SYSOUT=*
+//SYSUDUMP DD SYSOUT=*
+//SYSIN    DD *
+  SET CURRENT SQLID='<SQLID>' ;
+CREATE TABLE <DB2DBID>.pet (
+     policyNumber   INTEGER NOT NULL,
+     petName        CHAR(20),
+     petType        CHAR(10),
+     petBreed       CHAR(20),
+     dateOfBirth    DATE,
+     value          INTEGER,
+     premium        INTEGER,
+     vetName        CHAR(30),
+     vetPhone       CHAR(20),
+     preExisting    CHAR(1),
+   PRIMARY KEY(policyNumber),
+   FOREIGN KEY(policyNumber)
+          REFERENCES <DB2DBID>.policy (policyNumber) ON DELETE CASCADE)
+   CCSID EBCDIC
+   IN <DB2DBID>.GENATS08;
+
+CREATE UNIQUE INDEX <DB2DBID>.iPet
+   ON <DB2DBID>.pet (policyNumber) CLUSTER
+   COPY YES ;
+
+/*
+//*
 //CRGRACC EXEC PGM=IKJEFT01,DYNAMNBR=20,COND=(4,LT)
 //SYSTSPRT DD SYSOUT=*
 //SYSTSIN  DD *
@@ -398,6 +444,8 @@ CREATE UNIQUE INDEX <DB2DBID>.iClaim
   GRANT ALL PRIVILEGES ON TABLE <DB2DBID>.endowment TO PUBLIC;
   GRANT ALL PRIVILEGES ON TABLE <DB2DBID>.commercial TO PUBLIC;
   GRANT ALL PRIVILEGES ON TABLE <DB2DBID>.claim    TO PUBLIC;
+  GRANT USE OF TABLESPACE <DB2DBID>.GENATS08 TO PUBLIC;
+  GRANT ALL PRIVILEGES ON TABLE <DB2DBID>.pet      TO PUBLIC;
 /*
 //*
 //********************************************************************

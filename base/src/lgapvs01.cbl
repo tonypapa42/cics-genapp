@@ -49,6 +49,10 @@
            05  WF-M-MODEL              Pic X(15).
            05  WF-M-VALUE              Pic 9(6).
            05  WF-M-REGNUMBER          Pic X(7).
+         03 WF-P-Policy-Data Redefines WF-Policy-Data.
+           05  WF-P-PETNAME            Pic X(20).
+           05  WF-P-PETTYPE            Pic X(10).
+           05  WF-P-FILLER             Pic X(13).
       ******************************
       * Variables for time/date processing
        01  WS-ABSTIME                  PIC S9(8) COMP VALUE +0.
@@ -126,6 +130,10 @@
                Move CA-M-MODEL         To  WF-M-MODEL
                Move CA-M-VALUE         To  WF-M-VALUE
                Move CA-M-REGNUMBER     To  WF-M-REGNUMBER
+
+             When 'P'
+               Move CA-P-PETNAME       To  WF-P-PETNAME
+               Move CA-P-PETTYPE       To  WF-P-PETTYPE
 
              When Other
                Move Spaces To WF-Policy-Data

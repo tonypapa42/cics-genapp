@@ -684,5 +684,130 @@ ENP5OPT DFHMDF POS=(22,24),LENGTH=1,ATTRB=(NORM,NUM,UNPROT,FSET),      X
 *
 ERP5FLD DFHMDF POS=(24,8),LENGTH=40,ATTRB=(BRT,ASKIP,PROT),            X
                INITIAL=' '
+***********************************************************************
+*
+*       Pet Insurance Policy Screen
+*
+***********************************************************************
+SSMAPP6 DFHMDI SIZE=(24,80)
+        DFHMDF POS=(1,1),LENGTH=4,ATTRB=(ASKIP,BRT),INITIAL='SSP6'
+        DFHMDF POS=(1,12),LENGTH=40,ATTRB=(BRT,ASKIP),                 X
+               INITIAL='General Insurance Pet Policy Menu   '
+*
+        DFHMDF POS=(4,08),LENGTH=18,ATTRB=(NORM,ASKIP),                X
+               INITIAL='1. Policy Inquiry '
+        DFHMDF POS=(5,08),LENGTH=16,ATTRB=(NORM,ASKIP),                X
+               INITIAL='2. Policy Add     '
+        DFHMDF POS=(6,08),LENGTH=16,ATTRB=(NORM,ASKIP),                X
+               INITIAL='3. Policy Delete  '
+        DFHMDF POS=(7,08),LENGTH=16,ATTRB=(NORM,ASKIP),                X
+               INITIAL='4. Policy Update  '
+*
+        DFHMDF POS=(04,30),LENGTH=15,ATTRB=(NORM,ASKIP),               X
+               INITIAL='Policy Number '
+ENP6PNO DFHMDF POS=(04,50),LENGTH=10,ATTRB=(NORM,UNPROT,IC,FSET),      *
+               JUSTIFY=(RIGHT,ZERO)
+        DFHMDF POS=(04,61),LENGTH=1,ATTRB=(PROT,ASKIP),                X
+               INITIAL=' '
+*
+        DFHMDF POS=(05,30),LENGTH=16,ATTRB=(NORM,ASKIP),               X
+               INITIAL='Cust Number '
+ENP6CNO DFHMDF POS=(05,50),LENGTH=10,ATTRB=(NORM,UNPROT,IC,FSET),      *
+               JUSTIFY=(RIGHT,ZERO)
+        DFHMDF POS=(05,61),LENGTH=1,ATTRB=(PROT,ASKIP),                X
+               INITIAL=' '
+*
+        DFHMDF POS=(06,30),LENGTH=16,ATTRB=(NORM,ASKIP),               X
+               INITIAL='Issue date '
+ENP6IDA DFHMDF POS=(06,50),LENGTH=10,ATTRB=(NORM,UNPROT,FSET),         X
+               INITIAL=' '
+        DFHMDF POS=(06,61),LENGTH=1,ATTRB=(PROT,ASKIP),                X
+               INITIAL=' '
+        DFHMDF POS=(06,63),LENGTH=12,ATTRB=(NORM,ASKIP),               X
+               INITIAL='(yyyy-mm-dd)'
+*
+        DFHMDF POS=(07,30),LENGTH=16,ATTRB=(NORM,ASKIP),               X
+               INITIAL='Expiry date '
+ENP6EDA DFHMDF POS=(07,50),LENGTH=10,ATTRB=(NORM,UNPROT,FSET),         X
+               INITIAL=' '
+        DFHMDF POS=(07,61),LENGTH=1,ATTRB=(PROT,ASKIP),                X
+               INITIAL=' '
+        DFHMDF POS=(07,63),LENGTH=12,ATTRB=(NORM,ASKIP),               X
+               INITIAL='(yyyy-mm-dd)'
+*
+        DFHMDF POS=(08,30),LENGTH=16,ATTRB=(NORM,ASKIP),               X
+               INITIAL='Pet Name    '
+ENP6PNM DFHMDF POS=(08,50),LENGTH=20,ATTRB=(NORM,UNPROT,FSET),         X
+               INITIAL=' '
+        DFHMDF POS=(08,71),LENGTH=1,ATTRB=(PROT,ASKIP),                X
+               INITIAL=' '
+*
+        DFHMDF POS=(09,30),LENGTH=16,ATTRB=(NORM,ASKIP),               X
+               INITIAL='Pet Type    '
+ENP6PTY DFHMDF POS=(09,50),LENGTH=10,ATTRB=(NORM,UNPROT,FSET),         X
+               INITIAL=' '
+        DFHMDF POS=(09,61),LENGTH=1,ATTRB=(PROT,ASKIP),                X
+               INITIAL=' '
+*
+        DFHMDF POS=(10,30),LENGTH=16,ATTRB=(NORM,ASKIP),               X
+               INITIAL='Pet Breed   '
+ENP6PBR DFHMDF POS=(10,50),LENGTH=20,ATTRB=(NORM,UNPROT,FSET),         X
+               INITIAL=' '
+        DFHMDF POS=(10,71),LENGTH=1,ATTRB=(PROT,ASKIP),                X
+               INITIAL=' '
+*
+        DFHMDF POS=(11,30),LENGTH=16,ATTRB=(NORM,ASKIP),               X
+               INITIAL='Date of Birth'
+ENP6DOB DFHMDF POS=(11,50),LENGTH=10,ATTRB=(NORM,UNPROT,FSET),         X
+               INITIAL=' '
+        DFHMDF POS=(11,61),LENGTH=1,ATTRB=(PROT,ASKIP),                X
+               INITIAL=' '
+        DFHMDF POS=(11,63),LENGTH=12,ATTRB=(NORM,ASKIP),               X
+               INITIAL='(yyyy-mm-dd)'
+*
+        DFHMDF POS=(12,30),LENGTH=16,ATTRB=(NORM,ASKIP),               X
+               INITIAL='Insured Value'
+ENP6VAL DFHMDF POS=(12,50),LENGTH=06,ATTRB=(NORM,UNPROT,FSET),         X
+               INITIAL=' ',JUSTIFY=(RIGHT,ZERO)
+        DFHMDF POS=(12,57),LENGTH=1,ATTRB=(PROT,ASKIP),                X
+               INITIAL=' '
+*
+        DFHMDF POS=(13,30),LENGTH=16,ATTRB=(NORM,ASKIP),               X
+               INITIAL='Premium       '
+ENP6PRE DFHMDF POS=(13,50),LENGTH=06,ATTRB=(NORM,UNPROT,FSET),         *
+               JUSTIFY=(RIGHT,ZERO),INITIAL=' '
+        DFHMDF POS=(13,57),LENGTH=1,ATTRB=(PROT,ASKIP),                X
+               INITIAL=' '
+*
+        DFHMDF POS=(14,30),LENGTH=16,ATTRB=(NORM,ASKIP),               X
+               INITIAL='Vet Name     '
+ENP6VNM DFHMDF POS=(14,50),LENGTH=25,ATTRB=(NORM,UNPROT,FSET),         X
+               INITIAL=' '
+        DFHMDF POS=(14,76),LENGTH=1,ATTRB=(PROT,ASKIP),                X
+               INITIAL=' '
+*
+        DFHMDF POS=(15,30),LENGTH=16,ATTRB=(NORM,ASKIP),               X
+               INITIAL='Vet Phone    '
+ENP6VPH DFHMDF POS=(15,50),LENGTH=20,ATTRB=(NORM,UNPROT,FSET),         X
+               INITIAL=' '
+        DFHMDF POS=(15,71),LENGTH=1,ATTRB=(PROT,ASKIP),                X
+               INITIAL=' '
+*
+        DFHMDF POS=(16,30),LENGTH=16,ATTRB=(NORM,ASKIP),               X
+               INITIAL='Pre-existing  '
+ENP6PEX DFHMDF POS=(16,50),LENGTH=01,ATTRB=(NORM,UNPROT,FSET),         X
+               INITIAL=' '
+        DFHMDF POS=(16,52),LENGTH=1,ATTRB=(PROT,ASKIP),                X
+               INITIAL=' '
+*
+        DFHMDF POS=(22,08),LENGTH=14,ATTRB=(NORM,ASKIP),               X
+               INITIAL='Select Option '
+ENP6OPT DFHMDF POS=(22,24),LENGTH=1,ATTRB=(NORM,NUM,UNPROT,FSET),      X
+               VALIDN=(MUSTENTER),INITIAL=' '
+        DFHMDF POS=(22,26),LENGTH=1,ATTRB=(PROT,ASKIP),                X
+               INITIAL=' '
+*
+ERP6FLD DFHMDF POS=(24,8),LENGTH=40,ATTRB=(BRT,ASKIP,PROT),            X
+               INITIAL=' '
         DFHMSD TYPE=FINAL
         END
