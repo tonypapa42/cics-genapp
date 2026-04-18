@@ -118,10 +118,21 @@
       *----------------------------------------------------------------*
       *    Perform the data Inserts                                    *
       *----------------------------------------------------------------*
-           EXEC CICS Link Program(LGAPDB01)
-                Commarea(DFHCOMMAREA)
-                LENGTH(32500)
-           END-EXEC.
+           EVALUATE CA-REQUEST-ID
+
+             WHEN '01APET'
+               EXEC CICS Link Program('LGAPPT01')
+                    Commarea(DFHCOMMAREA)
+                    LENGTH(32500)
+               END-EXEC
+
+             WHEN OTHER
+               EXEC CICS Link Program(LGAPDB01)
+                    Commarea(DFHCOMMAREA)
+                    LENGTH(32500)
+               END-EXEC
+
+           END-EVALUATE.
 
            EXEC CICS RETURN END-EXEC.
 

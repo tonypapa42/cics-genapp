@@ -1,14 +1,16 @@
+       PROCESS SQL
       ******************************************************************
       *                                                                *
-      * (C) Copyright IBM Corp. 2011, 2020                             *
+      * (C) Copyright IBM Corp. 2011, 2024                             *
       *                                                                *
-      *                     UPDATE policy details                      *
+      *                    DELETE Pet Policy                           *
       *                                                                *
-      * Business logic                                                 *
+      *  Appropriate row will be deleted from DB2 Policy and the       *
+      *  Pet table (via foreign key cascade).                          *
       *                                                                *
       ******************************************************************
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. LGUPOL01.
+       PROGRAM-ID. LGDPPT01.
        ENVIRONMENT DIVISION.
        CONFIGURATION SECTION.
       *
@@ -22,7 +24,7 @@
       * Run time (debug) infomation for this invocation
         01  WS-HEADER.
            03 WS-EYECATCHER            PIC X(16)
-                                        VALUE 'LGUPOL01------WS'.
+                                        VALUE 'LGDPPT01------WS'.
            03 WS-TRANSID               PIC X(4).
            03 WS-TERMID                PIC X(4).
            03 WS-TASKNUM               PIC 9(7).
@@ -35,44 +37,68 @@
        01  WS-TIME                     PIC X(8)  VALUE SPACES.
        01  WS-DATE                     PIC X(10) VALUE SPACES.
 
-       01  WS-POLICY-LENGTHS.
-           03 WS-FULL-ENDOW-LEN        PIC S9(4) COMP VALUE +124.
-           03 WS-FULL-HOUSE-LEN        PIC S9(4) COMP VALUE +130.
-           03 WS-FULL-MOTOR-LEN        PIC S9(4) COMP VALUE +137.
-           03 WS-FULL-PET-LEN          PIC S9(4) COMP VALUE +190.
-
       * Error Message structure
        01  ERROR-MSG.
            03 EM-DATE                  PIC X(8)  VALUE SPACES.
            03 FILLER                   PIC X     VALUE SPACES.
            03 EM-TIME                  PIC X(6)  VALUE SPACES.
-           03 FILLER                   PIC X(9)  VALUE ' LGUPOL01'.
-           03 EM-VARIABLE              PIC X(21) VALUE SPACES.
+           03 FILLER                   PIC X(9)  VALUE ' LGDPPT01'.
+           03 EM-VARIABLE.
+             05 FILLER                 PIC X(6)  VALUE ' CNUM='.
+             05 EM-CUSNUM              PIC X(10)  VALUE SPACES.
+             05 FILLER                 PIC X(6)  VALUE ' PNUM='.
+             05 EM-POLNUM              PIC X(10)  VALUE SPACES.
+             05 EM-SQLREQ              PIC X(16) VALUE SPACES.
+             05 FILLER                 PIC X(9)  VALUE ' SQLCODE='.
+             05 EM-SQLRC               PIC +9(5) USAGE DISPLAY.
 
        01  CA-ERROR-MSG.
            03 FILLER                   PIC X(9)  VALUE 'COMMAREA='.
            03 CA-DATA                  PIC X(90) VALUE SPACES.
       *----------------------------------------------------------------*
-
+       01 LGDPVS01                  PIC X(8) Value 'LGDPVS01'.
       *----------------------------------------------------------------*
       * Definitions required for data manipulation                     *
       *----------------------------------------------------------------*
       * Fields to be used to calculate minimum commarea length required
-      * (for Endowment this does not allow for VARCHAR)
        01  WS-COMMAREA-LENGTHS.
-           03 WS-CA-HEADER-LEN         PIC S9(4) COMP VALUE +28.
-           03 WS-REQUIRED-CA-LEN       PIC S9(4) COMP VALUE +0.
-
-       01 LGUPDB01                     PIC X(8) VALUE 'LGUPDB01'.
+           03 WS-CA-HEADER-LEN          PIC S9(4) COMP VALUE +28.
 
       *----------------------------------------------------------------*
+
+      *----------------------------------------------------------------*
+      * Definitions required by SQL statement                          *
+      *   DB2 datatypes to COBOL equivalents                           *
+      *     SMALLINT    :   PIC S9(4) COMP                             *
+      *     INTEGER     :   PIC S9(9) COMP                             *
+      *     DATE        :   PIC X(10)                                  *
+      *     TIMESTAMP   :   PIC X(26)                                  *
+      *----------------------------------------------------------------*
+      * Host variables for input to DB2 integer types
+      * Any values specified in SQL stmts must be defined here so
+      * available to SQL pre-compiler
+       01 DB2-IN-INTEGERS.
+          03 DB2-CUSTOMERNUM-INT       PIC S9(9) COMP.
+          03 DB2-POLICYNUM-INT         PIC S9(9) COMP.
+      *----------------------------------------------------------------*
+
+      *----------------------------------------------------------------*
+      *    DB2 CONTROL
+      *----------------------------------------------------------------*
+      * SQLCA DB2 communications area
+           EXEC SQL
+               INCLUDE SQLCA
+           END-EXEC.
+
       ******************************************************************
       *    L I N K A G E     S E C T I O N
       ******************************************************************
        LINKAGE SECTION.
 
        01  DFHCOMMAREA.
-             COPY LGCMAREA.
+           EXEC SQL
+             INCLUDE LGCMAREA
+           END-EXEC.
 
 
       ******************************************************************
@@ -92,6 +118,10 @@
            MOVE EIBTRNID TO WS-TRANSID.
            MOVE EIBTRMID TO WS-TERMID.
            MOVE EIBTASKN TO WS-TASKNUM.
+      *----------------------------------------------------------------*
+
+      * initialize DB2 host variables
+           INITIALIZE DB2-IN-INTEGERS.
 
       *----------------------------------------------------------------*
       * Check commarea and obtain required details                     *
@@ -102,57 +132,32 @@
                PERFORM WRITE-ERROR-MESSAGE
                EXEC CICS ABEND ABCODE('LGCA') NODUMP END-EXEC
            END-IF
+
       * initialize commarea return code to zero
            MOVE '00' TO CA-RETURN-CODE
            MOVE EIBCALEN TO WS-CALEN.
            SET WS-ADDR-DFHCOMMAREA TO ADDRESS OF DFHCOMMAREA.
 
-      *----------------------------------------------------------------*
-      * Check which policy type is being requested                     *
-      *   and chec commarea length                                     *
-      *----------------------------------------------------------------*
-           EVALUATE CA-REQUEST-ID
+      * Check commarea is large enough
+           IF EIBCALEN IS LESS THAN WS-CA-HEADER-LEN
+             MOVE '98' TO CA-RETURN-CODE
+             EXEC CICS RETURN END-EXEC
+           END-IF
 
-             WHEN '01UEND'
-               ADD WS-CA-HEADER-LEN  TO WS-REQUIRED-CA-LEN
-               ADD WS-FULL-ENDOW-LEN TO WS-REQUIRED-CA-LEN
-               IF EIBCALEN IS LESS THAN WS-REQUIRED-CA-LEN
-                 MOVE '98' TO CA-RETURN-CODE
-                 EXEC CICS RETURN END-EXEC
-               END-IF
+      * Convert commarea customer & policy nums to DB2 integer format
+           MOVE CA-CUSTOMER-NUM TO DB2-CUSTOMERNUM-INT
+           MOVE CA-POLICY-NUM   TO DB2-POLICYNUM-INT
+      * and save in error msg field incase required
+           MOVE CA-CUSTOMER-NUM TO EM-CUSNUM
+           MOVE CA-POLICY-NUM   TO EM-POLNUM
 
-             WHEN '01UHOU'
-               ADD WS-CA-HEADER-LEN  TO WS-REQUIRED-CA-LEN
-               ADD WS-FULL-HOUSE-LEN TO WS-REQUIRED-CA-LEN
-               IF EIBCALEN IS LESS THAN WS-REQUIRED-CA-LEN
-                 MOVE '98' TO CA-RETURN-CODE
-                 EXEC CICS RETURN END-EXEC
-               END-IF
-
-             WHEN '01UMOT'
-               ADD WS-CA-HEADER-LEN  TO WS-REQUIRED-CA-LEN
-               ADD WS-FULL-MOTOR-LEN TO WS-REQUIRED-CA-LEN
-               IF EIBCALEN IS LESS THAN WS-REQUIRED-CA-LEN
-                 MOVE '98' TO CA-RETURN-CODE
-                 EXEC CICS RETURN END-EXEC
-               END-IF
-
-             WHEN '01UPET'
-               ADD WS-CA-HEADER-LEN  TO WS-REQUIRED-CA-LEN
-               ADD WS-FULL-PET-LEN   TO WS-REQUIRED-CA-LEN
-               IF EIBCALEN IS LESS THAN WS-REQUIRED-CA-LEN
-                 MOVE '98' TO CA-RETURN-CODE
-                 EXEC CICS RETURN END-EXEC
-               END-IF
-
-             WHEN OTHER
-               MOVE '99' TO CA-RETURN-CODE
-           END-EVALUATE
-
-           PERFORM UPDATE-POLICY-DB2-INFO.
+           PERFORM DELETE-POLICY-DB2-INFO
+           EXEC CICS LINK PROGRAM(LGDPVS01)
+                Commarea(DFHCOMMAREA)
+                LENGTH(32500)
+           END-EXEC.
 
       * Return to caller
-       END-PROGRAM.
            EXEC CICS RETURN END-EXEC.
 
        MAINLINE-EXIT.
@@ -160,22 +165,30 @@
       *----------------------------------------------------------------*
 
       *================================================================*
+      * Delete appropriate row from policy table                       *
+      *  because of FOREIGN KEY definitions the delete should be       *
+      *  propagated to the pet table                                   *
       *================================================================*
-       UPDATE-POLICY-DB2-INFO.
+       DELETE-POLICY-DB2-INFO.
 
-           IF CA-REQUEST-ID = '01UPET'
-             EXEC CICS LINK Program('LGUPPT01')
-                  Commarea(DFHCOMMAREA)
-                  LENGTH(32500)
-             END-EXEC
-           ELSE
-             EXEC CICS LINK Program('LGUPDB01')
-                  Commarea(DFHCOMMAREA)
-                  LENGTH(32500)
-             END-EXEC
+           MOVE ' DELETE POLICY  ' TO EM-SQLREQ
+           EXEC SQL
+             DELETE
+               FROM POLICY
+               WHERE ( CUSTOMERNUMBER = :DB2-CUSTOMERNUM-INT AND
+                       POLICYNUMBER  = :DB2-POLICYNUM-INT      )
+           END-EXEC
+
+      *    Treat SQLCODE 0 and SQLCODE 100 (record not found) as
+      *    successful - end result is record does not exist
+           IF SQLCODE NOT EQUAL 0 Then
+               MOVE '90' TO CA-RETURN-CODE
+               PERFORM WRITE-ERROR-MESSAGE
+               EXEC CICS RETURN END-EXEC
            END-IF.
 
            EXIT.
+
 
       *================================================================*
       * Procedure to write error message to Queues                     *
@@ -184,6 +197,7 @@
       *================================================================*
        WRITE-ERROR-MESSAGE.
       * Save SQLCODE in message
+           MOVE SQLCODE TO EM-SQLRC
       * Obtain and format current time and date
            EXEC CICS ASKTIME ABSTIME(WS-ABSTIME)
            END-EXEC

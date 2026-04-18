@@ -101,3 +101,15 @@
                  07 CA-C-Cause           PIC X(255).
                  07 CA-C-Observations    PIC X(255).
                  07 CA-C-FILLER          PIC X(31854).
+      *       Pet policy description
+              05 CA-PET        REDEFINES CA-POLICY-SPECIFIC.
+                 07 CA-P-PETNAME         PIC X(20).
+                 07 CA-P-PETTYPE         PIC X(10).
+                 07 CA-P-PETBREED        PIC X(20).
+                 07 CA-P-DATEOFBIRTH     PIC X(10).
+                 07 CA-P-VALUE           PIC 9(6).
+                 07 CA-P-PREMIUM         PIC 9(6).
+                 07 CA-P-VETNAME         PIC X(25).
+                 07 CA-P-VETPHONE        PIC X(20).
+                 07 CA-P-PREEXISTING     PIC X.
+                 07 CA-P-FILLER          PIC X(32282).

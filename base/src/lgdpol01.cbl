@@ -119,14 +119,22 @@
            IF ( CA-REQUEST-ID NOT EQUAL TO '01DEND' AND
                 CA-REQUEST-ID NOT EQUAL TO '01DMOT' AND
                 CA-REQUEST-ID NOT EQUAL TO '01DHOU' AND
-                CA-REQUEST-ID NOT EQUAL TO '01DCOM' )
+                CA-REQUEST-ID NOT EQUAL TO '01DCOM' AND
+                CA-REQUEST-ID NOT EQUAL TO '01DPET' )
       *        Request is not recognised or supported
                MOVE '99' TO CA-RETURN-CODE
            ELSE
-               PERFORM DELETE-POLICY-DB2-INFO
-               If CA-RETURN-CODE > 0
-                 EXEC CICS RETURN END-EXEC
-               End-if
+               IF CA-REQUEST-ID = '01DPET'
+                 EXEC CICS LINK PROGRAM('LGDPPT01')
+                      Commarea(DFHCOMMAREA)
+                      LENGTH(32500)
+                 END-EXEC
+               ELSE
+                 PERFORM DELETE-POLICY-DB2-INFO
+                 If CA-RETURN-CODE > 0
+                   EXEC CICS RETURN END-EXEC
+                 End-if
+               END-IF
            END-IF
 
       * Return to caller
