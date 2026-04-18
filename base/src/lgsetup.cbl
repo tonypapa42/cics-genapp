@@ -92,6 +92,14 @@
        01  GENACNTH99                PIC X(16) Value 'GENA01DCOM99'.
        01  GENACNTI00                PIC X(16) Value 'GENA01UCUS00'.
        01  GENACNTI99                PIC X(16) Value 'GENA01UCUS99'.
+       01  GENACNTJ00                PIC X(16) VALUE 'GENA01IPET00'.
+       01  GENACNTJ99                PIC X(16) VALUE 'GENA01IPET99'.
+       01  GENACNTK00                PIC X(16) VALUE 'GENA01APET00'.
+       01  GENACNTK99                PIC X(16) VALUE 'GENA01APET99'.
+       01  GENACNTL00                PIC X(16) VALUE 'GENA01DPET00'.
+       01  GENACNTL99                PIC X(16) VALUE 'GENA01DPET99'.
+       01  GENACNTM00                PIC X(16) VALUE 'GENA01UPET00'.
+       01  GENACNTM99                PIC X(16) VALUE 'GENA01UPET99'.
        01  STSQ.
          03  STSQ-NAME                 PIC X(8) Value 'GENACNTL'.
        01  FILLER REDEFINES STSQ.
@@ -510,6 +518,82 @@
                             Resp(WS-RESP)
            End-Exec.
            Exec CICS Define Counter(GENACNTI99)
+                            Pool(GENApool)
+                            Value(0)
+                            Resp(WS-RESP)
+           End-Exec.
+
+           Exec CICS Delete Counter(GENACNTJ00)
+                            Pool(GENApool)
+                            Resp(WS-RESP)
+           End-Exec.
+           Exec CICS Define Counter(GENACNTJ00)
+                            Pool(GENApool)
+                            Value(0)
+                            Resp(WS-RESP)
+           End-Exec.
+           Exec CICS Delete Counter(GENACNTJ99)
+                            Pool(GENApool)
+                            Resp(WS-RESP)
+           End-Exec.
+           Exec CICS Define Counter(GENACNTJ99)
+                            Pool(GENApool)
+                            Value(0)
+                            Resp(WS-RESP)
+           End-Exec.
+
+           Exec CICS Delete Counter(GENACNTK00)
+                            Pool(GENApool)
+                            Resp(WS-RESP)
+           End-Exec.
+           Exec CICS Define Counter(GENACNTK00)
+                            Pool(GENApool)
+                            Value(0)
+                            Resp(WS-RESP)
+           End-Exec.
+           Exec CICS Delete Counter(GENACNTK99)
+                            Pool(GENApool)
+                            Resp(WS-RESP)
+           End-Exec.
+           Exec CICS Define Counter(GENACNTK99)
+                            Pool(GENApool)
+                            Value(0)
+                            Resp(WS-RESP)
+           End-Exec.
+
+           Exec CICS Delete Counter(GENACNTL00)
+                            Pool(GENApool)
+                            Resp(WS-RESP)
+           End-Exec.
+           Exec CICS Define Counter(GENACNTL00)
+                            Pool(GENApool)
+                            Value(0)
+                            Resp(WS-RESP)
+           End-Exec.
+           Exec CICS Delete Counter(GENACNTL99)
+                            Pool(GENApool)
+                            Resp(WS-RESP)
+           End-Exec.
+           Exec CICS Define Counter(GENACNTL99)
+                            Pool(GENApool)
+                            Value(0)
+                            Resp(WS-RESP)
+           End-Exec.
+
+           Exec CICS Delete Counter(GENACNTM00)
+                            Pool(GENApool)
+                            Resp(WS-RESP)
+           End-Exec.
+           Exec CICS Define Counter(GENACNTM00)
+                            Pool(GENApool)
+                            Value(0)
+                            Resp(WS-RESP)
+           End-Exec.
+           Exec CICS Delete Counter(GENACNTM99)
+                            Pool(GENApool)
+                            Resp(WS-RESP)
+           End-Exec.
+           Exec CICS Define Counter(GENACNTM99)
                             Pool(GENApool)
                             Value(0)
                             Resp(WS-RESP)

@@ -179,6 +179,9 @@
            03 DB2-M-CC-SINT            PIC S9(4) COMP.
            03 DB2-M-PREMIUM-INT        PIC S9(9) COMP.
            03 DB2-M-ACCIDENTS-INT      PIC S9(9) COMP.
+           03 DB2-P-AGE-SINT           PIC S9(4) COMP.
+           03 DB2-P-INSUREDVALUE-INT   PIC S9(9) COMP.
+           03 DB2-P-PREMIUM-INT        PIC S9(9) COMP.
            03 DB2-B-FirePeril-Int      PIC S9(4) COMP.
            03 DB2-B-FirePremium-Int    PIC S9(9) COMP.
            03 DB2-B-CrimePeril-Int     PIC S9(4) COMP.
@@ -287,6 +290,10 @@
              WHEN '01IMOT'
                INITIALIZE DB2-MOTOR
                PERFORM GET-MOTOR-DB2-INFO
+
+             WHEN '01IPET'
+               INITIALIZE DB2-PET
+               PERFORM GET-PET-DB2-INFO
 
              WHEN '01ICOM'
                INITIALIZE DB2-COMMERCIAL
@@ -604,6 +611,99 @@
 
       *      Mark the end of the policy data
              MOVE 'FINAL' TO CA-M-FILLER(1:5)
+
+           ELSE
+      *      Non-zero SQLCODE from first SQL FETCH statement
+             IF SQLCODE EQUAL 100
+      *        No rows found - invalid customer / policy number
+               MOVE '01' TO CA-RETURN-CODE
+             ELSE
+      *        something has gone wrong
+               MOVE '90' TO CA-RETURN-CODE
+      *        Write error message to TD QUEUE(CSMT)
+               PERFORM WRITE-ERROR-MESSAGE
+             END-IF
+
+           END-IF.
+           EXIT.
+
+      *================================================================*
+      * Use Select on join of Policy and Pet tables to obtain          *
+      * single row that matches customer and policy number requested.  *
+      *================================================================*
+       GET-PET-DB2-INFO.
+
+           MOVE ' SELECT PET   ' TO EM-SQLREQ
+           EXEC SQL
+             SELECT  ISSUEDATE,
+                     EXPIRYDATE,
+                     LASTCHANGED,
+                     BROKERID,
+                     BROKERSREFERENCE,
+                     PAYMENT,
+                     PETTYPE,
+                     BREED,
+                     PETNAME,
+                     PETAGE,
+                     VACCINATED,
+                     CHIPID,
+                     INSUREDVALUE,
+                     PREMIUM
+             INTO  :DB2-ISSUEDATE,
+                   :DB2-EXPIRYDATE,
+                   :DB2-LASTCHANGED,
+                   :DB2-BROKERID-INT INDICATOR :IND-BROKERID,
+                   :DB2-BROKERSREF INDICATOR :IND-BROKERSREF,
+                   :DB2-PAYMENT-INT INDICATOR :IND-PAYMENT,
+                   :DB2-P-PETTYPE,
+                   :DB2-P-BREED,
+                   :DB2-P-NAME,
+                   :DB2-P-AGE-SINT,
+                   :DB2-P-VACCINATED,
+                   :DB2-P-CHIPID,
+                   :DB2-P-INSUREDVALUE-INT,
+                   :DB2-P-PREMIUM-INT
+             FROM  POLICY,PET
+             WHERE ( POLICY.POLICYNUMBER =
+                        PET.POLICYNUMBER   AND
+                     POLICY.CUSTOMERNUMBER =
+                        :DB2-CUSTOMERNUM-INT             AND
+                     POLICY.POLICYNUMBER =
+                        :DB2-POLICYNUM-INT               )
+           END-EXEC
+
+           IF SQLCODE = 0
+      *      Select was successful
+
+      *      Calculate size of commarea required to return all data
+             ADD WS-CA-HEADERTRAILER-LEN TO WS-REQUIRED-CA-LEN
+             ADD WS-FULL-PET-LEN         TO WS-REQUIRED-CA-LEN
+
+      *      if commarea received is not large enough ...
+      *        set error return code and return to caller
+             IF EIBCALEN IS LESS THAN WS-REQUIRED-CA-LEN
+               MOVE '98' TO CA-RETURN-CODE
+               EXEC CICS RETURN END-EXEC
+             ELSE
+      *        Length is sufficent so move data to commarea
+      *        Move Integer fields to required length numerics
+      *        Don't move null fields
+               IF IND-BROKERID NOT EQUAL MINUS-ONE
+                 MOVE DB2-BROKERID-INT TO DB2-BROKERID
+               END-IF
+               IF IND-PAYMENT NOT EQUAL MINUS-ONE
+                 MOVE DB2-PAYMENT-INT TO DB2-PAYMENT
+               END-IF
+               MOVE DB2-P-AGE-SINT          TO DB2-P-AGE
+               MOVE DB2-P-INSUREDVALUE-INT  TO DB2-P-INSUREDVALUE
+               MOVE DB2-P-PREMIUM-INT       TO DB2-P-PREMIUM
+
+               MOVE DB2-POLICY-COMMON  TO CA-POLICY-COMMON
+               MOVE DB2-PET            TO CA-PET(1:WS-PET-LEN)
+             END-IF
+
+      *      Mark the end of the policy data
+             MOVE 'FINAL' TO CA-P-FILLER(1:5)
 
            ELSE
       *      Non-zero SQLCODE from first SQL FETCH statement

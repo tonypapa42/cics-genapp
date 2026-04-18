@@ -288,6 +288,43 @@ CREATE UNIQUE INDEX <DB2DBID>.iMotor
 /*
 //*
 //* >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+//*  CREATE Pet TABLE
+//* <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+//*
+//CRTABS  EXEC PGM=IKJEFT01,DYNAMNBR=20,COND=(4,LT)
+//SYSTSPRT DD SYSOUT=*
+//SYSTSIN  DD *
+ DSN SYSTEM(<DB2SSID>)
+ RUN  PROGRAM(DSNTIAD) PLAN(<DB2PLAN>) -
+    LIB('<DB2RUN>.RUNLIB.LOAD')
+/*
+//SYSPRINT DD SYSOUT=*
+//SYSUDUMP DD SYSOUT=*
+//SYSIN    DD *
+  SET CURRENT SQLID='<SQLID>' ;
+CREATE TABLE <DB2DBID>.pet (
+    policyNumber   INTEGER NOT NULL,
+    petType        CHAR(10),
+    breed          CHAR(20),
+    petName        CHAR(20),
+    petAge         SMALLINT,
+    vaccinated     CHAR(1),
+    chipId         CHAR(15),
+    insuredValue   INTEGER,
+    premium        INTEGER,
+  PRIMARY KEY(policyNumber),
+  FOREIGN KEY(policyNumber)
+       REFERENCES <DB2DBID>.policy (policyNumber) ON DELETE CASCADE)
+  CCSID EBCDIC
+  IN <DB2DBID>.GENATS07;
+
+CREATE UNIQUE INDEX <DB2DBID>.iPet
+  ON <DB2DBID>.pet (policyNumber) CLUSTER
+  COPY YES ;
+
+/*
+//*
+//* >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 //*  CREATE Commercial TABLE
 //* <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 //*
@@ -396,6 +433,7 @@ CREATE UNIQUE INDEX <DB2DBID>.iClaim
   GRANT ALL PRIVILEGES ON TABLE <DB2DBID>.motor    TO PUBLIC;
   GRANT ALL PRIVILEGES ON TABLE <DB2DBID>.house    TO PUBLIC;
   GRANT ALL PRIVILEGES ON TABLE <DB2DBID>.endowment TO PUBLIC;
+  GRANT ALL PRIVILEGES ON TABLE <DB2DBID>.pet      TO PUBLIC;
   GRANT ALL PRIVILEGES ON TABLE <DB2DBID>.commercial TO PUBLIC;
   GRANT ALL PRIVILEGES ON TABLE <DB2DBID>.claim    TO PUBLIC;
 /*

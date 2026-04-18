@@ -230,6 +230,14 @@
        01  GENACNTG99                PIC X(32) Value 'GENA01ACOM99'.
        01  GENACNTH00                PIC X(16) Value 'GENA01DCOM00'.
        01  GENACNTH99                PIC X(32) Value 'GENA01DCOM99'.
+       01  GENACNTJ00                PIC X(16) Value 'GENA01IPET00'.
+       01  GENACNTJ99                PIC X(32) Value 'GENA01IPET99'.
+       01  GENACNTK00                PIC X(16) Value 'GENA01APET00'.
+       01  GENACNTK99                PIC X(32) Value 'GENA01APET99'.
+       01  GENACNTL00                PIC X(16) Value 'GENA01DPET00'.
+       01  GENACNTL99                PIC X(32) Value 'GENA01DPET99'.
+       01  GENACNTM00                PIC X(16) Value 'GENA01UPET00'.
+       01  GENACNTM99                PIC X(32) Value 'GENA01UPET99'.
        01  GENACNTI99                PIC X(16) Value 'GENAOTHER   '.
 
       *****************************************************************
@@ -657,6 +665,62 @@
            Compute CountErrors  = CountErrors + CountVal
            Move CountVal  To GENACNTH99-V
            Move GENACNTH99-V To S36
+
+               Exec CICS Query Counter(GENACNTJ00)
+                                      Pool(GENApool)
+                                      Value(CountVal)
+                                      Resp(WS-RESP)
+               End-Exec.
+               Compute CountSuccess = CountSuccess + CountVal
+               Compute CountInq = CountInq + CountVal
+               Exec CICS Query Counter(GENACNTJ99)
+                                      Pool(GENApool)
+                                      Value(CountVal)
+                                      Resp(WS-RESP)
+               End-Exec.
+               Compute CountErrors  = CountErrors + CountVal
+
+               Exec CICS Query Counter(GENACNTK00)
+                                      Pool(GENApool)
+                                      Value(CountVal)
+                                      Resp(WS-RESP)
+               End-Exec.
+               Compute CountSuccess = CountSuccess + CountVal
+               Compute CountAdd = CountAdd + CountVal
+               Exec CICS Query Counter(GENACNTK99)
+                                      Pool(GENApool)
+                                      Value(CountVal)
+                                      Resp(WS-RESP)
+               End-Exec.
+               Compute CountErrors  = CountErrors + CountVal
+
+               Exec CICS Query Counter(GENACNTL00)
+                                      Pool(GENApool)
+                                      Value(CountVal)
+                                      Resp(WS-RESP)
+               End-Exec.
+               Compute CountSuccess = CountSuccess + CountVal
+               Compute CountDel = CountDel + CountVal
+               Exec CICS Query Counter(GENACNTL99)
+                                      Pool(GENApool)
+                                      Value(CountVal)
+                                      Resp(WS-RESP)
+               End-Exec.
+               Compute CountErrors  = CountErrors + CountVal
+
+               Exec CICS Query Counter(GENACNTM00)
+                                      Pool(GENApool)
+                                      Value(CountVal)
+                                      Resp(WS-RESP)
+               End-Exec.
+               Compute CountSuccess = CountSuccess + CountVal
+               Compute CountUpd = CountUpd + CountVal
+               Exec CICS Query Counter(GENACNTM99)
+                                      Pool(GENApool)
+                                      Value(CountVal)
+                                      Resp(WS-RESP)
+               End-Exec.
+               Compute CountErrors  = CountErrors + CountVal
 
       *
            Exec CICS Query Counter(GENACNTI99)

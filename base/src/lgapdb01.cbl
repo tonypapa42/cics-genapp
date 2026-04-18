@@ -99,6 +99,9 @@
            03 DB2-M-CC-SINT            PIC S9(4) COMP.
            03 DB2-M-PREMIUM-int        PIC S9(9) COMP.
            03 DB2-M-ACCIDENTS-int      PIC S9(9) COMP.
+           03 DB2-P-AGE-SINT           PIC S9(4) COMP.
+           03 DB2-P-INSUREDVALUE-INT   PIC S9(9) COMP.
+           03 DB2-P-PREMIUM-INT        PIC S9(9) COMP.
            03 DB2-B-FirePeril-Int      PIC S9(4) COMP.
            03 DB2-B-FirePremium-Int    PIC S9(9) COMP.
            03 DB2-B-CrimePeril-Int     PIC S9(4) COMP.
@@ -195,6 +198,10 @@
                ADD WS-FULL-MOTOR-LEN TO WS-REQUIRED-CA-LEN
                MOVE 'M' TO DB2-POLICYTYPE
 
+             WHEN '01APET'
+               ADD WS-FULL-PET-LEN TO WS-REQUIRED-CA-LEN
+               MOVE 'P' TO DB2-POLICYTYPE
+
              WHEN '01ACOM'
                ADD WS-FULL-COMM-LEN TO WS-REQUIRED-CA-LEN
                MOVE 'C' TO DB2-POLICYTYPE
@@ -230,6 +237,9 @@
 
              WHEN '01AMOT'
                PERFORM INSERT-MOTOR
+
+             WHEN '01APET'
+               PERFORM INSERT-PET
 
              WHEN '01ACOM'
                PERFORM INSERT-COMMERCIAL
@@ -468,6 +478,49 @@
                          :CA-M-MANUFACTURED,
                          :DB2-M-PREMIUM-INT,
                          :DB2-M-ACCIDENTS-INT )
+           END-EXEC
+
+           IF SQLCODE NOT EQUAL 0
+             MOVE '90' TO CA-RETURN-CODE
+             PERFORM WRITE-ERROR-MESSAGE
+      *      Issue Abend to cause backout of update to Policy table
+             EXEC CICS ABEND ABCODE('LGSQ') NODUMP END-EXEC
+             EXEC CICS RETURN END-EXEC
+           END-IF.
+
+           EXIT.
+
+      *================================================================*
+      * Issue INSERT on pet table using values passed in commarea      *
+      *================================================================*
+       INSERT-PET.
+
+      *    Move numeric fields to integer format
+           MOVE CA-P-AGE            TO DB2-P-AGE-SINT
+           MOVE CA-P-INSUREDVALUE   TO DB2-P-INSUREDVALUE-INT
+           MOVE CA-P-PREMIUM        TO DB2-P-PREMIUM-INT
+
+           MOVE ' INSERT PET   ' TO EM-SQLREQ
+           EXEC SQL
+             INSERT INTO PET
+                       ( POLICYNUMBER,
+                         PETTYPE,
+                         BREED,
+                         PETNAME,
+                         PETAGE,
+                         VACCINATED,
+                         CHIPID,
+                         INSUREDVALUE,
+                         PREMIUM )
+                VALUES ( :DB2-POLICYNUM-INT,
+                         :CA-P-PETTYPE,
+                         :CA-P-BREED,
+                         :CA-P-NAME,
+                         :DB2-P-AGE-SINT,
+                         :CA-P-VACCINATED,
+                         :CA-P-CHIPID,
+                         :DB2-P-INSUREDVALUE-INT,
+                         :DB2-P-PREMIUM-INT )
            END-EXEC
 
            IF SQLCODE NOT EQUAL 0
