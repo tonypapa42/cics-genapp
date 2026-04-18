@@ -109,7 +109,7 @@
                  07 CA-P-DATEOFBIRTH     PIC X(10).
                  07 CA-P-VALUE           PIC 9(6).
                  07 CA-P-PREMIUM         PIC 9(6).
-                 07 CA-P-VETNAME         PIC X(30).
+                 07 CA-P-VETNAME         PIC X(25).
                  07 CA-P-VETPHONE        PIC X(20).
                  07 CA-P-PREEXISTING     PIC X.
-                 07 CA-P-FILLER          PIC X(32277).
+                 07 CA-P-FILLER          PIC X(32282).

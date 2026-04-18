@@ -403,7 +403,7 @@ CREATE TABLE <DB2DBID>.pet (
      dateOfBirth    DATE,
      value          INTEGER,
      premium        INTEGER,
-     vetName        CHAR(30),
+     vetName        CHAR(25),
      vetPhone       CHAR(20),
      preExisting    CHAR(1),
    PRIMARY KEY(policyNumber),

@@ -21,13 +21,13 @@
            03 WS-MOTOR-LEN             PIC S9(4) COMP VALUE +65.
            03 WS-COMM-LEN              PIC S9(4) COMP VALUE +1102.
            03 WS-CLAIM-LEN             PIC S9(4) COMP VALUE +546.
-           03 WS-PET-LEN               PIC S9(4) COMP VALUE +123.
+           03 WS-PET-LEN               PIC S9(4) COMP VALUE +118.
            03 WS-FULL-ENDOW-LEN        PIC S9(4) COMP VALUE +124.
            03 WS-FULL-HOUSE-LEN        PIC S9(4) COMP VALUE +130.
            03 WS-FULL-MOTOR-LEN        PIC S9(4) COMP VALUE +137.
            03 WS-FULL-COMM-LEN         PIC S9(4) COMP VALUE +1174.
            03 WS-FULL-CLAIM-LEN        PIC S9(4) COMP VALUE +618.
-           03 WS-FULL-PET-LEN          PIC S9(4) COMP VALUE +195.
+           03 WS-FULL-PET-LEN          PIC S9(4) COMP VALUE +190.
            03 WS-SUMRY-ENDOW-LEN       PIC S9(4) COMP VALUE +25.
 
        01  DB2-CUSTOMER.
@@ -115,6 +115,6 @@
            03 DB2-P-DATEOFBIRTH        PIC X(10).
            03 DB2-P-VALUE              PIC 9(6).
            03 DB2-P-PREMIUM            PIC 9(6).
-           03 DB2-P-VETNAME            PIC X(30).
+           03 DB2-P-VETNAME            PIC X(25).
            03 DB2-P-VETPHONE           PIC X(20).
            03 DB2-P-PREEXISTING        PIC X.

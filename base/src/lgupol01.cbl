@@ -39,7 +39,7 @@
            03 WS-FULL-ENDOW-LEN        PIC S9(4) COMP VALUE +124.
            03 WS-FULL-HOUSE-LEN        PIC S9(4) COMP VALUE +130.
            03 WS-FULL-MOTOR-LEN        PIC S9(4) COMP VALUE +137.
-           03 WS-FULL-PET-LEN          PIC S9(4) COMP VALUE +195.
+           03 WS-FULL-PET-LEN          PIC S9(4) COMP VALUE +190.
 
       * Error Message structure
        01  ERROR-MSG.
