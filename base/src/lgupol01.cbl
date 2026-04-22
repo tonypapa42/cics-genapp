@@ -39,6 +39,7 @@
            03 WS-FULL-ENDOW-LEN        PIC S9(4) COMP VALUE +124.
            03 WS-FULL-HOUSE-LEN        PIC S9(4) COMP VALUE +130.
            03 WS-FULL-MOTOR-LEN        PIC S9(4) COMP VALUE +137.
+           03 WS-FULL-PET-LEN          PIC S9(4) COMP VALUE +200.
 
       * Error Message structure
        01  ERROR-MSG.
@@ -131,6 +132,14 @@
              WHEN '01UMOT'
                ADD WS-CA-HEADER-LEN  TO WS-REQUIRED-CA-LEN
                ADD WS-FULL-MOTOR-LEN TO WS-REQUIRED-CA-LEN
+               IF EIBCALEN IS LESS THAN WS-REQUIRED-CA-LEN
+                 MOVE '98' TO CA-RETURN-CODE
+                 EXEC CICS RETURN END-EXEC
+               END-IF
+
+             WHEN '01UPET'
+               ADD WS-CA-HEADER-LEN  TO WS-REQUIRED-CA-LEN
+               ADD WS-FULL-PET-LEN TO WS-REQUIRED-CA-LEN
                IF EIBCALEN IS LESS THAN WS-REQUIRED-CA-LEN
                  MOVE '98' TO CA-RETURN-CODE
                  EXEC CICS RETURN END-EXEC

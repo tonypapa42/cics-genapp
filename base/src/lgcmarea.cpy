@@ -73,6 +73,17 @@
                  07 CA-M-PREMIUM         PIC 9(6).
                  07 CA-M-ACCIDENTS       PIC 9(6).
                  07 CA-M-FILLER          PIC X(32323).
+                 05 CA-PET REDEFINES CA-POLICY-SPECIFIC.
+                    07 CA-P-NAME             PIC X(20).
+                    07 CA-P-TYPE             PIC X(15).
+                    07 CA-P-BREED            PIC X(20).
+                    07 CA-P-DOB              PIC X(10).
+                    07 CA-P-VALUE            PIC 9(6).
+                    07 CA-P-PREMIUM          PIC 9(6).
+                    07 CA-P-VET-NAME         PIC X(30).
+                    07 CA-P-VET-PHONE        PIC X(20).
+                    07 CA-P-PREEXISTING      PIC X.
+                    07 CA-P-FILLER           PIC X(32272).
       *       Commercial policy description
               05 CA-COMMERCIAL REDEFINES CA-POLICY-SPECIFIC.
                  07 CA-B-Address         PIC X(255).

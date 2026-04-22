@@ -96,6 +96,8 @@
           03 DB2-M-CC-SINT             PIC S9(4) COMP.
           03 DB2-M-PREMIUM-INT         PIC S9(9) COMP.
           03 DB2-M-ACCIDENTS-INT       PIC S9(9) COMP.
+         03 DB2-P-VALUE-INT           PIC S9(9) COMP.
+         03 DB2-P-PREMIUM-INT         PIC S9(9) COMP.
 
       *  Host variables to store result of DB2 Fetch
       *  Must be an SQL INCLUDE so available to SQL pre-compiler
@@ -297,6 +299,11 @@
       *          Call routine to update Motor table
                  PERFORM UPDATE-MOTOR-DB2-INFO
 
+      *** Pet ***
+               WHEN '01UPET'
+      *          Call routine to update Pet table
+                 PERFORM UPDATE-PET-DB2-INFO
+
              END-EVALUATE
       *----------------------------------------------------------------*
               IF CA-RETURN-CODE NOT EQUAL '00'
@@ -480,6 +487,45 @@
                     ACCIDENTS         = :DB2-M-ACCIDENTS-INT
                WHERE
                     POLICYNUMBER      = :DB2-POLICYNUM-INT
+           END-EXEC
+
+           IF SQLCODE NOT EQUAL 0
+      *      Non-zero SQLCODE from UPDATE statement
+             IF SQLCODE EQUAL 100
+               MOVE '01' TO CA-RETURN-CODE
+             ELSE
+               MOVE '90' TO CA-RETURN-CODE
+      *        Write error message to TD QUEUE(CSMT)
+               PERFORM WRITE-ERROR-MESSAGE
+             END-IF
+           END-IF.
+           EXIT.
+
+      *================================================================*
+      * Update row in Pet table which matches customer and             *
+      * policy number requested.                                       *
+      *================================================================*
+       UPDATE-PET-DB2-INFO.
+
+      *    Move numeric commarea fields to DB2 Integer formats
+           MOVE CA-P-VALUE       TO DB2-P-VALUE-INT
+           MOVE CA-P-PREMIUM     TO DB2-P-PREMIUM-INT
+
+           MOVE ' UPDATE PET   ' TO EM-SQLREQ
+           EXEC SQL
+             UPDATE PET
+               SET
+                    PETNAME      = :CA-P-NAME,
+                    PETTYPE      = :CA-P-TYPE,
+                    PETBREED     = :CA-P-BREED,
+                    DATEOFBIRTH  = :CA-P-DOB,
+                    VALUE        = :DB2-P-VALUE-INT,
+                    PREMIUM      = :DB2-P-PREMIUM-INT,
+                    VETNAME      = :CA-P-VET-NAME,
+                    VETPHONE     = :CA-P-VET-PHONE,
+                    PREEXISTING  = :CA-P-PREEXISTING
+               WHERE
+                    POLICYNUMBER = :DB2-POLICYNUM-INT
            END-EXEC
 
            IF SQLCODE NOT EQUAL 0

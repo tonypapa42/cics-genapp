@@ -119,6 +119,7 @@
            IF ( CA-REQUEST-ID NOT EQUAL TO '01DEND' AND
                 CA-REQUEST-ID NOT EQUAL TO '01DMOT' AND
                 CA-REQUEST-ID NOT EQUAL TO '01DHOU' AND
+                CA-REQUEST-ID NOT EQUAL TO '01DPET' AND
                 CA-REQUEST-ID NOT EQUAL TO '01DCOM' )
       *        Request is not recognised or supported
                MOVE '99' TO CA-RETURN-CODE
